@@ -60,4 +60,21 @@ public class UserService {
 
     }
 
+    public UserResponseDTO updateUser(Long id, UserRequestDTO requestDTO) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
+
+        user.setName(requestDTO.getName());
+        user.setEmail(requestDTO.getEmail());
+
+        User updatedUser = userRepository.save(user);
+
+        UserResponseDTO responseDTO = new UserResponseDTO();
+        responseDTO.setId(updatedUser.getId());
+        responseDTO.setName(updatedUser.getName());
+        responseDTO.setEmail(updatedUser.getEmail());
+
+        return responseDTO;
+    }
 }

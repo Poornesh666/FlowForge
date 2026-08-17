@@ -22,6 +22,22 @@ public class GlobalExceptionHandler {
 
     }
 
+    /*
+     * Handles cases where the requested workspace does not exist.
+     *
+     * Returns HTTP 404 Not Found along with the exception message.
+     */
+    @ExceptionHandler(WorkspaceNotFoundException.class)
+    public ResponseEntity<String> handleWorkspaceNotFound(
+            WorkspaceNotFoundException ex){
+
+        return new ResponseEntity<>(
+                ex.getMessage(),
+                HttpStatus.NOT_FOUND
+        );
+
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationException(
             MethodArgumentNotValidException ex) {
