@@ -3,6 +3,7 @@ package com.flowforge.controller;
 import com.flowforge.dto.WorkspaceRequestDTO;
 import com.flowforge.dto.WorkspaceResponseDTO;
 import com.flowforge.service.WorkspaceService;
+import com.flowforge.service.ProjectService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,7 +17,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WorkspaceController {
 
-    private final WorkspaceService workspaceService;
+        private final WorkspaceService workspaceService;
+        private final ProjectService projectService;
 
     // Creates a new workspace.
     @PostMapping
@@ -88,4 +90,17 @@ public class WorkspaceController {
         // and there is no response body to return.
         return ResponseEntity.noContent().build();
     }
+
+        /*
+         * Retrieve projects for a specific workspace.
+         * Example: GET /workspaces/1/projects
+         */
+        @GetMapping("/{workspaceId}/projects")
+        public ResponseEntity<java.util.List<com.flowforge.dto.ProjectResponseDTO>> getProjectsForWorkspace(
+                        @PathVariable Long workspaceId
+        ) {
+                return ResponseEntity.ok(
+                                projectService.getProjectsByWorkspace(workspaceId)
+                );
+        }
 }

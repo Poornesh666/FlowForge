@@ -55,4 +55,25 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.badRequest().body(response);
     }
+
+    @ExceptionHandler(ProjectNotFoundException.class)
+    public ResponseEntity<String> handleProjectNotFound(
+            ProjectNotFoundException ex) {
+
+        // Return HTTP 404 when the requested project does not exist.
+        return new ResponseEntity<>(
+                ex.getMessage(),
+                HttpStatus.NOT_FOUND
+        );
+    }
+
+    @ExceptionHandler(InvalidTaskStateTransitionException.class)
+    public ResponseEntity<String> handleInvalidTaskStateTransition(
+            InvalidTaskStateTransitionException ex) {
+
+        return new ResponseEntity<>(
+                ex.getMessage(),
+                HttpStatus.BAD_REQUEST
+        );
+    }
 }
