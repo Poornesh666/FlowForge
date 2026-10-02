@@ -11,22 +11,30 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.flowforge.command.CreateTaskCommand;
+import com.flowforge.command.DeleteTaskCommand;
+import com.flowforge.command.TaskCommandInvoker;
+import com.flowforge.command.UpdateTaskCommand;
 
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/tasks")
 public class TaskController {
 
+    private final TaskCommandInvoker commandInvoker;
     private final TaskService taskService;
     private final TaskAssignmentService taskAssignmentService;
 
     public TaskController(
             TaskService taskService,
-            TaskAssignmentService taskAssignmentService
+            TaskAssignmentService taskAssignmentService,
+            TaskCommandInvoker commandInvoker
     ) {
         this.taskService = taskService;
         this.taskAssignmentService = taskAssignmentService;
+        this.commandInvoker = commandInvoker;
     }
 
     @PostMapping
@@ -35,7 +43,9 @@ public class TaskController {
     ) {
 
         TaskResponseDTO response =
-                taskService.createTask(request);
+                commandInvoker.execute(
+                        new CreateTaskCommand(taskService, request)
+                );
 
         return new ResponseEntity<>(
                 response,
@@ -68,7 +78,13 @@ public class TaskController {
     ) {
 
         return ResponseEntity.ok(
-                taskService.updateTask(id, request)
+                commandInvoker.execute(
+                        new UpdateTaskCommand(
+                                taskService,
+                                id,
+                                request
+                        )
+                )
         );
     }
 
@@ -77,7 +93,9 @@ public class TaskController {
             @PathVariable Long id
     ) {
 
-        taskService.deleteTask(id);
+        commandInvoker.execute(
+                new DeleteTaskCommand(taskService, id)
+        );
 
         return ResponseEntity.noContent().build();
     }

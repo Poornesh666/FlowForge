@@ -7,38 +7,44 @@ import com.flowforge.entity.Task;
 import com.flowforge.entity.TaskPriority;
 import com.flowforge.entity.TaskStatus;
 import com.flowforge.entity.User;
+import com.flowforge.observer.TaskEventSubject;
 import com.flowforge.repository.ProjectRepository;
 import com.flowforge.repository.TaskRepository;
 import com.flowforge.repository.UserRepository;
 import com.flowforge.state.TaskState;
 import com.flowforge.state.TaskStateResolver;
 import org.springframework.stereotype.Service;
-
+import com.flowforge.chain.TaskValidationChain;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class TaskService {
-
+    private final TaskValidationChain validationChain;
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final TaskStateResolver stateResolver;
+    private final TaskEventSubject taskEventSubject;
 
     public TaskService(
             TaskRepository taskRepository,
             ProjectRepository projectRepository,
             UserRepository userRepository,
-            TaskStateResolver stateResolver
+            TaskStateResolver stateResolver,
+            TaskEventSubject taskEventSubject,
+            TaskValidationChain validationChain
     ) {
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.stateResolver = stateResolver;
+        this.taskEventSubject = taskEventSubject;
+        this.validationChain = validationChain;
     }
 
     public TaskResponseDTO createTask(TaskRequestDTO request) {
-
+        validationChain.validate(request);
         Project project = projectRepository.findById(request.getProjectId())
                 .orElseThrow(() ->
                         new RuntimeException("Project not found"));
